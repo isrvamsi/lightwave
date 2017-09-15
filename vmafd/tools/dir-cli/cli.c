@@ -18,15 +18,6 @@
 
 static
 DWORD
-DirCliReadPassword(
-    PCSTR pszUser,
-    PCSTR pszDomain,
-    PCSTR pszPrompt,
-    PSTR* ppszPassword
-    );
-
-static
-DWORD
 DirCliParsePrincipal(
     PCSTR pszLogin,
     PSTR* ppszUser,
@@ -2308,8 +2299,6 @@ error:
 }
 
 #ifndef _WIN32
-
-static
 DWORD
 DirCliReadPassword(
     PCSTR pszUser,
@@ -2400,7 +2389,6 @@ error:
 
 #else
 
-static
 DWORD
 DirCliReadPassword(
     PCSTR pszUser,

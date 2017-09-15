@@ -4,6 +4,8 @@ dir_cli_SOURCES = \
     cert.c \
     cli.c  \
     ldap.c \
+    grouppolicy.c \
+    gp_cli.c \
     main.c
 
 dir_cli_CPPFLAGS = \
@@ -29,8 +31,55 @@ dir_cli_LDADD = \
     @CRYPTO_LIBS@ \
     @GSSAPI_LIBS@ \
     @UUID_LIBS@ \
-    @PTHREAD_LIBS@
+    @PTHREAD_LIBS@ \
+    @JANSSON_LIBS@
+
 
 dir_cli_LDFLAGS = \
     @OPENSSL_LDFLAGS@ \
-    @LW_LDFLAGS@
+    @LW_LDFLAGS@ \
+    @JANSSON_LDFLAGS@
+
+lib_LTLIBRARIES = liblightwavegp.la
+
+liblightwavegp_la_SOURCES = \
+    cert.c \
+    cli.c  \
+    ldap.c \
+    grouppolicy.c \
+    gp_cli.c \
+    main.c
+
+liblightwavegp_la_CPPFLAGS = \
+    -DLDAP_DEPRECATED \
+    -I$(top_srcdir)/vmafd/include \
+    -I$(top_srcdir)/vmafd/include/public \
+    -I$(top_srcdir)/vmdir/include/public \
+    @LW_INCLUDES@ \
+    @OPENSSL_INCLUDES@ \
+    -g
+
+liblightwavegp_la_LIBADD = \
+    $(top_builddir)/vmafd/client/libvmafdclient.la \
+    $(top_builddir)/vmafd/common/libcommon.la \
+    $(top_builddir)/vmafd/vmafcfg/api/libvmafcfgapi.la \
+    $(top_builddir)/vmdir/client/libvmdirclient.la \
+    @DCERPC_LIBS@ \
+    @LWIO_LIBS@ \
+    @SCHANNEL_LIBS@ \
+    @LWMSG_LIBS@ \
+    @LWREG_LIBS@ \
+    @LWBASE_LIBS@ \
+    @LDAP_LIBS@   \
+    @CRYPTO_LIBS@ \
+    @GSSAPI_LIBS@ \
+    @UUID_LIBS@ \
+    @PTHREAD_LIBS@ \
+    @JANSSON_LIBS@
+
+
+liblightwavegp_la_LDFLAGS = \
+    @OPENSSL_LDFLAGS@ \
+    @LW_LDFLAGS@ \
+    @JANSSON_LDFLAGS@ \
+    -shared

@@ -32,6 +32,8 @@
 #include <openssl/x509.h>
 #endif
 
+#include <getopt.h>
+#include <jansson.h>
 #include <vmafdsys.h>
 
 #include <vmdirerrors.h>

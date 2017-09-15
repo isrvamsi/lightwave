@@ -47,7 +47,7 @@ typedef enum
     DIR_COMMAND_TENANT_DELETE,
     DIR_COMMAND_TENANT_LIST,
     DIR_COMMAND_ORGUNIT_CREATE,
-    DIR_COMMAND_ORGUNIT_LIST,
+    DIR_COMMAND_ORGUNIT_LIST
 } DIR_COMMAND;
 
 typedef enum
@@ -86,6 +86,8 @@ typedef enum
 #define OBJECT_CLASS_GROUP         "group"
 #define OBJECT_CLASS_ORGANIZATIONAL_UNIT "organizationalUnit"
 #define OBJECT_CLASS_TOP           "top"
+#define OBJECT_CLASS_GROUP_POLICY_CONTAINER "groupPolicyContainer"
+#define OBJECT_CLASS_DOMAIN_DNS     "domainDNS"
 
 #define ATTR_NAME_OBJECTCLASS "objectclass"
 #define ATTR_NAME_SUBJECT_DN  "vmwSTSSubjectDN"
@@ -107,7 +109,11 @@ typedef enum
 #define ATTR_NAME_PASS_EXP_IN_DAY  "vmwPasswordLifetimeDays"
 #define ATTR_NAME_PWD_LAST_SET     "pwdLastSet"
 #define ATTR_NAME_PWD_LOCKOUT_POLICY_CN "password and lockout policy"
-#define ATTR_NAME_OU          "ou"
+#define ATTR_NAME_OU              "ou"
+#define ATTR_NAME_DISPLAYNAME     "displayName"
+#define ATTR_NAME_GPCMACHINEEXTENSIONS "gPCMachineExtensionNames"
+#define ATTR_NAME_VERSION_NUMBER  "versionNumber"
+#define ATTR_NAME_GPLINK          "gPLink"
 
 #define USER_ACC_CTRL_DISABLE_FLAG              0x00000002
 #define USER_ACC_CTRL_LOCKOUT_FLAG              0x00000010
@@ -124,17 +130,63 @@ typedef enum
 #define CA_CN_NAME          "Certificate-Authority"
 #define CA_CONTAINER_NAME   "Certificate-Authorities"
 
+#define ATTR_NAME_CN_SYSTEM "System"
+#define ATTR_NAME_CN_POLICIES "Policies"
+#define UUID_STR_LENGTH   37
+
 #define MAX_CN_LENGTH 64
 
 #define SECS_IN_MINUTE (60)
 #define SECS_IN_HOUR (SECS_IN_MINUTE * 60)
 #define SECS_IN_DAY (24 * SECS_IN_HOUR)
 
-#define ERROR_LOCAL_BASE                            (100000)
-#define ERROR_LOCAL_OPTION_UNKNOWN                  (ERROR_LOCAL_BASE + 1) // This option does not exist
-#define ERROR_LOCAL_OPTION_INVALID                  (ERROR_LOCAL_BASE + 2) // The options are not semantically valid
-#define ERROR_LOCAL_PASSWORDFILE_CANNOT_OPEN        (ERROR_LOCAL_BASE + 3)
-#define ERROR_LOCAL_PASSWORDFILE_CANNOT_READ        (ERROR_LOCAL_BASE + 4)
-#define ERROR_LOCAL_PASSWORD_EMPTY                  (ERROR_LOCAL_BASE + 5)
+//Cli options
+#define OPT_SERVERNAME "server-name"
+#define OPT_DOMAINNAME "domain-name"
+#define OPT_LOGIN      "login"
+#define OPT_PASSWORD   "password"
+#define OPT_TARGET_DN  "target-dn"
+#define OPT_JSON_FILE  "json-file"
+#define OPT_POLICY_NAME "policy-name"
 
+//GP commands
+#define COMMAND_GP_CREATE                     "create"
+#define COMMAND_GP_READ_POLICIES              "read-policies"
+#define COMMAND_GP_READ_LINKS                 "read-links"
+#define COMMAND_GP_UPDATE_POLICY              "update"
+#define COMMAND_GP_DELETE_POLICY              "delete"
+#define COMMAND_GP_LINK_POLICY_TO_OU          "link-ou"
+#define COMMAND_GP_LINK_POLICY_TO_DOMAIN      "link-domain"
+#define COMMAND_GP_UNLINK_POLICY_FROM_OU      "unlink-ou"
+#define COMMAND_GP_UNLINK_POLICY_FROM_DOMAIN  "unlink-domain"
+#define COMMAND_GP_CLEAN_DEAD_LINKS           "clean-dead-links"
+#define COMMAND_GET_RESULTANT_POLICIES        "resultant-policies"
+#define COMMAND_GP_HELP                       "help"
+
+#define NUM_KEYS_IN_POLICY_JSON                       5
+#define POLICY_JSON_TYPE_KEY                         "type"
+#define POLICY_JSON_ENABLED_KEY                      "enabled"
+#define POLICY_JSON_START_TIME_KEY                   "start_time"
+#define POLICY_JSON_INTERVAL_KEY                     "interval"
+#define POLICY_JSON_POLICY_INFO_KEY                  "policy_info"
+
+#define ERROR_LOCAL_BASE                             (100000)
+#define ERROR_LOCAL_OPTION_UNKNOWN                   (ERROR_LOCAL_BASE + 1) // This option does not exist
+#define ERROR_LOCAL_OPTION_INVALID                   (ERROR_LOCAL_BASE + 2) // The options are not semantically valid
+#define ERROR_LOCAL_PASSWORDFILE_CANNOT_OPEN         (ERROR_LOCAL_BASE + 3)
+#define ERROR_LOCAL_PASSWORDFILE_CANNOT_READ         (ERROR_LOCAL_BASE + 4)
+#define ERROR_LOCAL_PASSWORD_EMPTY                   (ERROR_LOCAL_BASE + 5)
+#define ERROR_GP_NO_SUCH_POLICY                      (ERROR_LOCAL_BASE + 6)
+#define ERROR_GP_NO_POLICY_TO_PRINT                  (ERROR_LOCAL_BASE + 7)
+#define ERROR_GP_DUPLICATE_POLICY_NAME               (ERROR_LOCAL_BASE + 8)
+#define ERROR_GP_GPLINK_JSON_ERROR                   (ERROR_LOCAL_BASE + 9)
+#define ERROR_GP_NO_SUCH_LINK                        (ERROR_LOCAL_BASE + 10)
+#define ERROR_GP_JSON_ARRAY_DELETE_FAILED            (ERROR_LOCAL_BASE + 11)
+#define ERROR_GP_JSON_CONVERSION_ERROR               (ERROR_LOCAL_BASE + 12)
+#define ERROR_GP_JSON_ARRAY_INIT_FAILED              (ERROR_LOCAL_BASE + 13)
+#define ERROR_GP_POLICY_JSON_FORMAT_INVALID          (ERROR_LOCAL_BASE + 14)
+#define ERROR_GP_POLICY_JSON_TIME_FORMAT_INVALID     (ERROR_LOCAL_BASE + 15)
+#define ERROR_GP_POLICY_JSON_INTERVAL_FORMAT_INVALID (ERROR_LOCAL_BASE + 16)
+#define ERROR_GP_UNKNOWN_COMMAND                     (ERROR_LOCAL_BASE + 17)
+#define ERROR_GP_INVALID_ARGUMENTS                   (ERROR_LOCAL_BASE + 18)
 #define DirCliIsFlagSet(value, flag) ((value & flag) == (flag))

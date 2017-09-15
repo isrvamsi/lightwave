@@ -260,7 +260,36 @@ DirCliMachineAccountReset(
     PCSTR pszPassword
     );
 
+DWORD
+DirCliReadPassword(
+    PCSTR pszUser,
+    PCSTR pszDomain,
+    PCSTR pszPrompt,
+    PSTR* ppszPassword
+    );
+
 // ldap.c
+
+DWORD
+DirCliLdapGetDomainFromDomainDN(
+    PCSTR  pszDomainDN,
+    PSTR* ppszDomain
+    );
+
+DWORD
+DirCliCopyQueryResultAttributeString(
+    LDAP*        pLotus,
+    LDAPMessage* pSearchResult,
+    PCSTR        pszAttribute,
+    BOOL         bOptional,
+    PSTR*        ppszOut
+);
+
+DWORD
+DirCliGetDefaultDomainName(
+    LDAP* pLotus,
+    PSTR* ppDomainName
+    );
 
 DWORD
 DirCliLdapConnect(
@@ -546,7 +575,7 @@ DWORD
 DirCliLdapGetDSERootAttribute(
     LDAP* pLotus,
     PSTR  pszAttribute,
-    PSTR* ppAttrValue
+    PSTR* ppszAttrValue
     );
 
     DWORD
@@ -594,6 +623,15 @@ DirCliLdapCheckAttribute(
     );
 
 DWORD
+DirCliLdapGetAttribute(
+    LDAP*    pLd,
+    PCSTR    pszObjectDN,
+    PCSTR    pszAttribute,
+    PBOOLEAN pbExists,
+    PSTR     *ppszValue
+    );
+
+DWORD
 DirCliLdapUpdateAttribute(
     LDAP*   pLd,
     PCSTR   pszObjectDN,
@@ -614,7 +652,7 @@ DWORD
 DirCliGetDSERootAttribute(
     LDAP* pLotus,
     PSTR  pszAttribute,
-    PSTR* ppAttrValue
+    PSTR* ppszAttrValue
     );
 
 DWORD
@@ -712,4 +750,292 @@ DirCliEnumerateOrgunits(
     PCSTR pszLogin,
     PCSTR pszPassword,
     PCSTR pszContainerDN
+    );
+
+//groupolicy.c
+DWORD
+DirCliGPGroupPolicyInit(
+    PCSTR pszLogin,
+    PCSTR pszPassword,
+    PCSTR pszHostname,
+    PCSTR pszDomain,
+    LDAP **ppLd
+    );
+
+DWORD
+DirCliGPCreateContainer(
+    LDAP *pLd,
+    PCSTR pszSystemContainerDN
+    );
+
+DWORD
+DirCliGPCheckContainer(
+    LDAP *pLd,
+    PCSTR pszContainerDN,
+    BOOLEAN bContainerType,
+    PBOOLEAN pbExists
+    );
+
+DWORD
+DirCliGPCreateNewPolicyObject(
+    PCSTR pszDomain,
+    PCSTR pszPolicyName,
+    PCSTR pszPolicyJson,
+    PDIR_GROUP_POLICY_OBJECT *ppPolicyObject
+    );
+
+DWORD
+DirCliGPAddPolicyObject(
+    LDAP *pLd,
+    const DIR_GROUP_POLICY_OBJECT *pPolicyObject
+    );
+
+DWORD
+DirCliGPUpdatePolicyObject(
+    LDAP *pLd,
+    const PDIR_GROUP_POLICY_OBJECT pPolicyObject
+    );
+
+void
+DirCliGPFreePolicyObject(
+    PDIR_GROUP_POLICY_OBJECT pPolicyObject
+    );
+
+DWORD
+DirCliGPPrintPolicyObject(
+    const DIR_GROUP_POLICY_OBJECT *pPolicyObject
+    );
+
+DWORD
+DirCliGPFindPolicyByName(
+    LDAP *pLd,
+    PCSTR pszPolicyName,
+    PCSTR pszDomain,
+    PDIR_GROUP_POLICY_OBJECT *ppPolicyObject
+    );
+
+DWORD
+DirCliGPGetParentDN(
+    PCSTR pszOriginalDN,
+    DWORD dwParentlevel,
+    PSTR *ppszParentDN
+    );
+
+DWORD
+DirCliGPGetPolicyCount(
+    const DIR_GROUP_POLICY_OBJECT *pPolicyObject,
+    DWORD *pdwPolicyCount
+    );
+
+DWORD
+DirCliGPDeletePolicyByName(
+    LDAP *pLd,
+    PCSTR pszPolicyName,
+    PCSTR pszDomain
+    );
+
+DWORD
+DirCliGPGetStrFromBerval(
+    struct berval la_attr,
+    PSTR *ppszBervalStr
+    );
+
+DWORD
+DirCliLdapPrintDNComponents(
+    PCSTR pszTestDN
+    );
+
+void
+DirCliGPShowJsonError(
+    json_error_t *pError
+    );
+
+DWORD
+DirCliGPLinkPolicyToDomain(
+    LDAP *pLd,
+    PCSTR pszPolicyName,
+    PCSTR pszDomain
+    );
+
+DWORD
+DirCliGPUnlinkPolicyfromDomain(
+    LDAP *pLd,
+    PCSTR pszPolicyName,
+    PCSTR pszDomain
+    );
+
+DWORD
+DirCliGPUnlinkPolicyfromOU(
+    LDAP *pLd,
+    PCSTR pszPolicyName,
+    PCSTR pszOuDN,
+    PCSTR pszDomain
+    );
+
+DWORD
+DirCliGPLinkPolicyToOU(
+    LDAP *pLd,
+    PCSTR pszPolicyName,
+    PCSTR pszOuDN,
+    PCSTR pszDomain
+    );
+
+DWORD
+DirCliGPListPolicyLinks(
+    LDAP *pLd
+    );
+
+DWORD
+DirCliGPGetPolicyNameFromPolicyDN(
+    LDAP *pLd,
+    PCSTR pszPolicyDN,
+    PSTR *ppszPolicyName
+    );
+
+DWORD
+DirCliGPDeleteAllPolicyLinksbyName(
+    LDAP *pLd,
+    PCSTR pszPolicyName,
+    PCSTR pszPolicyDomainName
+    );
+
+DWORD
+DirCliGPCleanDeadLinks(
+    LDAP *pLd
+    );
+
+DWORD
+DirCliGPRemoveLinkFromGPLinkList(
+    LDAP *pLd,
+    PCSTR pszPolicyDN,
+    const GPLINK_LIST *pgPLinkList
+    );
+
+DWORD
+DirCliGPPrintGplinkList(
+    const GPLINK_LIST *pgPLinkList
+    );
+
+void
+DirCliGPFreegPLinkList(
+    GPLINK_LIST *pgPLinkList
+    );
+
+DWORD
+DirCliGPEditPolicyObject(
+    PDIR_GROUP_POLICY_OBJECT pPolicyObject,
+    PCSTR pszPolicyName,
+    PCSTR pszPolicyJson
+    );
+
+DWORD
+DirCliGPGetFirstAttributeofDN(
+    PCSTR pszObjectDN,
+    PSTR *ppszAttr
+    );
+
+DWORD
+DirCliGPReverseLinkedList(
+    PGPLINK_LIST pgPLinkList,
+    PGPLINK_LIST *ppgPLinkListReversed
+    );
+
+DWORD
+DirCliGPGetScopeOfManagementList(
+    LDAP *pLd,
+    PCSTR pszTargetDN,
+    PGPLINK_LIST *ppgPLinkList
+    );
+
+DWORD
+DirCliGPGetResultantPolicesForDN(
+    LDAP *pLd,
+    PCSTR psztargetDN,
+    PCSTR pszDomain,
+    PDIR_GROUP_POLICY_OBJECT *ppPolicyObjectHead
+    );
+
+DWORD
+DirCliGPProcessSOMListForPolicies(
+    LDAP *pLd,
+    PGPLINK_LIST pgPLinkList,
+    PCSTR pszDomain,
+    PDIR_GROUP_POLICY_OBJECT *ppPolicyObjectHead
+    );
+
+DWORD
+DirCliGPAddKindAndOrderToPolicy(
+    LDAP *pLd,
+    PCSTR pszObjectDN,
+    DWORD dwPolicyOrder,
+    PDIR_GROUP_POLICY_OBJECT pPolicyObject
+    );
+
+DWORD
+DirCliGPCheckIfPolicyExistsInList(
+    const DIR_GROUP_POLICY_OBJECT *pPolicyObjectHead,
+    PCSTR pszPolicyName,
+    PBOOLEAN pbExists
+    );
+
+//gp_cli.c
+
+DWORD
+DirCliExecGPRequest(
+    int   argc,
+    char* argv[]
+    );
+
+DWORD
+DirCliGPPrintCliArgs(
+    const GP_CLI_ARGS *pGPArgs
+    );
+
+DWORD
+DirCliGPParseCliArgs(
+    int argc,
+    char *argv[],
+    PGP_CLI_ARGS pGPArgs
+    );
+
+void
+DirCliGPFreeGPArgs(
+    PGP_CLI_ARGS pGPArgs
+    );
+
+DWORD
+DirCliGPRouteCliCmd(
+    GP_CLI_ARGS *pGPArgs
+    );
+
+DWORD
+DirCliGPValidateInitArgs(
+    PGP_CLI_ARGS pGPArgs
+    );
+
+DWORD
+DirCliGPValidateOUArgs(
+    const GP_CLI_ARGS *pGPArgs
+    );
+
+DWORD
+DirCliGPGetPolicyJsonFromArgs(
+    const GP_CLI_ARGS *pGPArgs,
+    PSTR *ppszPolicyJson
+    );
+
+DWORD
+DirCliGPValidatePolicyStartTime(
+    json_t *jsonPolicyTime,
+    PBOOLEAN pbIsValid
+    );
+
+DWORD
+DirCliGPValidatePolicyInterval(
+    json_t *jsonPolicyInterval,
+    PBOOLEAN pbIsValid
+    );
+
+void
+DirCliGPShowHelp(
     );

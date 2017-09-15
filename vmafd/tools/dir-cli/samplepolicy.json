@@ -1,0 +1,14 @@
+{
+    "type": "update",
+    "enabled": true,
+    "start_time": "2015-05-30 18:13:04",
+    "interval": "6h",
+    "policy_info": {
+        "type": "security",
+        "altertype": "update",
+        "packages": [
+            "diffutils",
+            "vim"
+        ]
+    }
+}

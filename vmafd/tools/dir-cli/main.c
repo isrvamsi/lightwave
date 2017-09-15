@@ -168,66 +168,66 @@ error:
 
     switch (dwError)
     {
-        case ERROR_LOCAL_OPTION_UNKNOWN:
-            retCode = 2;
-            pszErrorMsg = "An unknown option was present on the command line.";
-            break;
-        case ERROR_LOCAL_OPTION_INVALID:
-            retCode = 3;
-            pszErrorMsg = "The options present on the command line are not valid.";
-            break;
-        case ERROR_LOCAL_PASSWORDFILE_CANNOT_OPEN:
-            retCode = 4;
-            pszErrorMsg = "Could not open password file.\nVerify the path is correct.";
-            break;
-        case ERROR_LOCAL_PASSWORDFILE_CANNOT_READ:
-            retCode = 5;
-            pszErrorMsg = "Problem reading password file.\nVerify contents of password file.";
-            break;
-        case ERROR_LOCAL_PASSWORD_EMPTY:
-            retCode = 6;
-            pszErrorMsg = "Invalid password; password cannot be empty.";
-            break;
-        case ERROR_CANNOT_CONNECT_VMAFD:
-            retCode = 20;
-            pszErrorMsg = "Could not connect to the local service VMware AFD.\nVerify VMware AFD is running.";
-            break;
-        case VMDIR_ERROR_CANNOT_CONNECT_VMDIR:
-            retCode = 21;
-            pszErrorMsg = "Could not connect to the local service VMware Directory Service.\nVerify VMware Directory Service is running.";
-            break;
-        case ERROR_INVALID_CONFIGURATION:
-            retCode = 22;
-            pszErrorMsg = "Configuration is not correct.\nFirst boot scripts need to be executed.";
-            break;
-        case VMDIR_ERROR_SERVER_DOWN:
-            retCode = 23;
-            pszErrorMsg = "Could not connect to VMware Directory Service via LDAP.\nVerify VMware Directory Service is running on the appropriate system and is reachable from this host.";
-            break;
-        case VMDIR_ERROR_USER_INVALID_CREDENTIAL:
-            retCode = 24;
-            pszErrorMsg = "Authentication to VMware Directory Service failed.\nVerify the username and password.";
-            break;
-        case ERROR_ACCESS_DENIED:
-            retCode = 25;
-            pszErrorMsg = "Authorization failed.\nVerify account has proper administrative privileges.";
-            break;
-        case VMDIR_ERROR_NO_FUNC_LVL:
-            retCode = 26;
-            pszErrorMsg = "Domain Functional Level was not found\n";
-            break;
-        case VMDIR_ERROR_INVALID_FUNC_LVL:
-            retCode = 27;
-            pszErrorMsg = "Invalid Domain Functional Level\n"
-                "Verify that level is valid for domain.";
-            break;
-        case VMDIR_ERROR_INCOMPLETE_MAX_DFL:
-            retCode = 28;
-            pszErrorMsg = "Maximum Domain Functional Level could not be determined\n"
-                "Verify that all nodes in the domain are online and reachable.";
-            break;
-        default:
-            retCode = 1;
+    case ERROR_LOCAL_OPTION_UNKNOWN:
+        retCode = 2;
+        pszErrorMsg = "An unknown option was present on the command line.";
+        break;
+    case ERROR_LOCAL_OPTION_INVALID:
+        retCode = 3;
+        pszErrorMsg = "The options present on the command line are not valid.";
+        break;
+    case ERROR_LOCAL_PASSWORDFILE_CANNOT_OPEN:
+        retCode = 4;
+        pszErrorMsg = "Could not open password file.\nVerify the path is correct.";
+        break;
+    case ERROR_LOCAL_PASSWORDFILE_CANNOT_READ:
+        retCode = 5;
+        pszErrorMsg = "Problem reading password file.\nVerify contents of password file.";
+        break;
+    case ERROR_LOCAL_PASSWORD_EMPTY:
+        retCode = 6;
+        pszErrorMsg = "Invalid password; password cannot be empty.";
+        break;
+    case ERROR_CANNOT_CONNECT_VMAFD:
+        retCode = 20;
+        pszErrorMsg = "Could not connect to the local service VMware AFD.\nVerify VMware AFD is running.";
+        break;
+    case VMDIR_ERROR_CANNOT_CONNECT_VMDIR:
+        retCode = 21;
+        pszErrorMsg = "Could not connect to the local service VMware Directory Service.\nVerify VMware Directory Service is running.";
+        break;
+    case ERROR_INVALID_CONFIGURATION:
+        retCode = 22;
+        pszErrorMsg = "Configuration is not correct.\nFirst boot scripts need to be executed.";
+        break;
+    case VMDIR_ERROR_SERVER_DOWN:
+        retCode = 23;
+        pszErrorMsg = "Could not connect to VMware Directory Service via LDAP.\nVerify VMware Directory Service is running on the appropriate system and is reachable from this host.";
+        break;
+    case VMDIR_ERROR_USER_INVALID_CREDENTIAL:
+        retCode = 24;
+        pszErrorMsg = "Authentication to VMware Directory Service failed.\nVerify the username and password.";
+        break;
+    case ERROR_ACCESS_DENIED:
+        retCode = 25;
+        pszErrorMsg = "Authorization failed.\nVerify account has proper administrative privileges.";
+        break;
+    case VMDIR_ERROR_NO_FUNC_LVL:
+        retCode = 26;
+        pszErrorMsg = "Domain Functional Level was not found\n";
+        break;
+    case VMDIR_ERROR_INVALID_FUNC_LVL:
+        retCode = 27;
+        pszErrorMsg = "Invalid Domain Functional Level\n"
+                      "Verify that level is valid for domain.";
+        break;
+    case VMDIR_ERROR_INCOMPLETE_MAX_DFL:
+        retCode = 28;
+        pszErrorMsg = "Maximum Domain Functional Level could not be determined\n"
+                      "Verify that all nodes in the domain are online and reachable.";
+        break;
+    default:
+        retCode = 1;
     }
 
     if (retCode != 1)
@@ -290,80 +290,86 @@ ParseArgs(
     else if (!VmAfdStringCompareA(pszArg, "service", TRUE))
     {
         dwError = DirCliExecServicePrincipalRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "user", TRUE))
     {
         dwError = DirCliExecUserRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "group", TRUE))
     {
         dwError = DirCliExecGroupRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "trustedcert", TRUE))
     {
         dwError = DirCliExecCertificateRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "ssogroup", TRUE))
     {
         dwError = DirCliExecGroupPrincipalRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "password", TRUE))
     {
         dwError = DirCliExecPasswordRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "domain-functional-level", TRUE))
     {
         dwError = DirCliExecFuncLvlRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "list-domain-versions", TRUE))
     {
         dwError = DirCliExecNodesVersionRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "nodes", TRUE))
     {
         dwError = DirCliExecTopologyRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "computer", TRUE))
     {
         dwError = DirCliExecMachineAccountReset(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "state", TRUE))
     {
         dwError = DirCliExecStateRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "tenant", TRUE))
     {
         dwError = DirCliExecTenantRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else if (!VmAfdStringCompareA(pszArg, "orgunit", TRUE))
     {
         dwError = DirCliExecOrgunitRequest(
-                        dwArgsLeft,
-                        dwArgsLeft > 0 ? &argv[iArg] : NULL);
+            dwArgsLeft,
+            dwArgsLeft > 0 ? &argv[iArg] : NULL);
+    }
+    else if (!VmAfdStringCompareA(pszArg, "grouppolicy", TRUE))
+    {
+        dwError = DirCliExecGPRequest(
+                      dwArgsLeft,
+                      dwArgsLeft > 0 ? &argv[iArg] : NULL);
     }
     else
     {
@@ -4419,5 +4425,62 @@ ShowUsage(
         "\t             [ --login       <admin user id>         ]\n"
         "\t             [ --password    <password>              ]\n"
         "\t             [ --container-dn <container DN>         ]\n"
+        "\tgrouppolicy create\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --policy-name <policy name>           ]\n"
+        "\t             [ --json-file   <policy json>           ]\n"
+        "\tgrouppolicy read-policies\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\tgrouppolicy read-links\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\tgrouppolicy update\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --policy-name <policy name to update> ]\n"
+        "\t             [ --json-file   <new policy json>       ]\n"
+        "\tgrouppolicy delete\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --policy-name <policy name to delete> ]\n"
+        "\tgrouppolicy link-ou\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --policy-name <policy name>           ]\n"
+        "\t             [ --target-dn   <OU DN to link>         ]\n"
+        "\tgrouppolicy link-domain\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --policy-name <policy name>           ]\n"
+        "\tgrouppolicy unlink-ou\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --policy-name <policy name>           ]\n"
+        "\t             [ --target-dn   <OU DN to unlink>       ]\n"
+        "\tgrouppolicy unlink-domain\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --policy-name <policy name>           ]\n"
+        "\tgrouppolicy clean-dead-links\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\tgrouppolicy resultant-policies\n"
+        "\t             [ --login       <admin user id>         ]\n"
+        "\t             [ --server-name <server name>           ]\n"
+        "\t             [ --domain-name <domain name>           ]\n"
+        "\t             [ --target-dn   <target dn>             ]\n"
+        "\tgrouppolicy help\n"
         "\thelp\n");
 }

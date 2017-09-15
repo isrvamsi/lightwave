@@ -22,22 +22,6 @@ extern "C"
 #endif
 
 
-static
-DWORD
-DirCliCopyQueryResultAttributeString(
-    LDAP*        pLotus,
-    LDAPMessage* pSearchResult,
-    PCSTR        pszAttribute,
-    BOOL         bOptional,
-    PSTR*        ppszOut
-);
-
-static
-DWORD
-DirCliGetDefaultDomainName(
-    LDAP* pLotus,
-    PSTR* ppDomainName
-    );
 
 DWORD
 VmDirSafeLDAPBind(
@@ -2565,6 +2549,136 @@ error:
 
 }
 
+//Converts back from the "." format from the DN format
+// DC= vpshere DC=local => vsphere.local
+DWORD
+DirCliLdapGetDomainFromDomainDN(
+    PCSTR  pszDomainDN,
+    PSTR  *ppszDomain
+    )
+{
+    DWORD dwError = 0;
+    LDAPDN ldapDN = NULL;
+    LDAPDN ldapDNHead = NULL;
+    PSTR pszDomain =NULL;
+    DWORD dwDomainStrLength = 0;
+    DWORD dwValueCount =0;
+    DWORD dwTotalLenth =0;
+    int flags =0;
+
+    if (IsNullOrEmptyString(pszDomainDN) || !ppszDomain)
+    {
+        dwError = ERROR_INVALID_PARAMETER;
+        BAIL_ON_VMAFD_ERROR(dwError);
+    }
+
+    dwError = ldap_str2dn(pszDomainDN, &ldapDN, flags);
+    BAIL_ON_VMAFD_ERROR(dwError);
+
+    ldapDNHead = ldapDN;
+
+    //Count the number of characters in the attribute values
+    while(*ldapDN != NULL)
+    {
+        dwDomainStrLength +=(**ldapDN)->la_value.bv_len;
+        dwValueCount++;
+        ldapDN++;
+    }
+
+    //Total string length  = dwDomainStrLength(characters) + (dwValueCount-1)(.) +1 ('\0')
+    dwTotalLenth = dwDomainStrLength +(dwValueCount-1)+ 1;
+
+    dwError = VmAfdAllocateMemory(dwTotalLenth,(void **)&pszDomain);
+    BAIL_ON_VMAFD_ERROR(dwError);
+
+    ldapDN = ldapDNHead;
+
+    while(*ldapDN != NULL)
+    {
+        strncat(pszDomain,(**ldapDN)->la_value.bv_val,(**ldapDN)->la_value.bv_len);
+        ldapDN++;
+
+        // Insert dot after every string but the last string
+        if(*ldapDN != NULL)
+        {
+            strncat(pszDomain,".",1);
+        }
+    }
+
+    *ppszDomain =pszDomain;
+
+cleanup:
+    if (ldapDNHead)
+    {
+        ldap_dnfree(ldapDNHead);
+    }
+    return dwError;
+
+error:
+    if(ppszDomain)
+    {
+        *ppszDomain = NULL;
+    }
+    VMAFD_SAFE_FREE_MEMORY(pszDomain);
+    goto cleanup;
+
+}
+
+DWORD
+DirCliLdapPrintDNComponents(
+    PCSTR  pszTestDN
+    )
+{
+    DWORD dwError = 0;
+    int flags =0;
+    LDAPDN ldapDN = NULL;
+    LDAPDN ldapDNHead = NULL;
+    PSTR pszAttr = NULL;
+    PSTR pszValue =NULL;
+
+    if (!pszTestDN)
+    {
+        dwError = ERROR_INVALID_PARAMETER;
+        BAIL_ON_VMAFD_ERROR(dwError);
+    }
+
+    dwError = ldap_str2dn(pszTestDN, &ldapDN, flags);
+    BAIL_ON_VMAFD_ERROR(dwError);
+
+    ldapDNHead = ldapDN;
+
+    //Print the datastructure to console
+    while(*ldapDN != NULL)
+    {
+        dwError = DirCliGPGetStrFromBerval((**ldapDN)->la_attr,&pszAttr);
+        BAIL_ON_VMAFD_ERROR(dwError);
+
+        dwError = DirCliGPGetStrFromBerval((**ldapDN)->la_value,&pszValue);
+        BAIL_ON_VMAFD_ERROR(dwError);
+
+        fprintf(stdout," Attribute =%s   Value =%s\n",pszAttr,pszValue);
+
+        //Reuse pointers.
+        VMAFD_SAFE_FREE_MEMORY(pszAttr);
+        VMAFD_SAFE_FREE_MEMORY(pszValue);
+
+        ldapDN++;
+    }
+
+cleanup:
+    if (ldapDNHead)
+    {
+        ldap_dnfree(ldapDNHead);
+    }
+
+    VMAFD_SAFE_FREE_MEMORY(pszAttr);
+    VMAFD_SAFE_FREE_MEMORY(pszValue);
+    return dwError;
+
+error:
+    goto cleanup;
+}
+
 DWORD
 DirCliLdapAddServiceToBuiltinGroup(
     LDAP* pLd,
@@ -3489,6 +3603,101 @@ error :
     goto cleanup;
 }
 
+
+DWORD
+DirCliLdapGetAttribute(
+    LDAP *pLd,
+    PCSTR pszObjectDN,
+    PCSTR pszAttribute,
+    PBOOLEAN pbExists,
+    PSTR *ppszValue
+    )
+{
+    DWORD dwError = 0;
+    PCHAR pszFilter = "(objectClass=*)";
+    PSTR  pszValue = NULL;
+    DWORD dwNumEntries = 0;
+    LDAPMessage* pSearchResult = NULL;
+    PCHAR ppszAttr[] = { (PSTR)pszAttribute, NULL };
+
+    if (!pLd                              ||
+        IsNullOrEmptyString(pszObjectDN)  ||
+        IsNullOrEmptyString(pszAttribute) ||
+        !ppszValue                        ||
+        !pbExists)
+    {
+        dwError = ERROR_INVALID_PARAMETER;
+        BAIL_ON_VMAFD_ERROR(dwError);
+    }
+
+    dwError = ldap_search_ext_s(
+        pLd,
+        (PSTR)pszObjectDN,
+        LDAP_SCOPE_BASE,
+        pszFilter,
+        ppszAttr, /* attributes      */
+        FALSE,
+        NULL, /* server controls */
+        NULL, /* client controls */
+        NULL, /* timeout         */
+        0,
+        &pSearchResult);
+    BAIL_ON_VMAFD_ERROR(dwError);
+
+    dwNumEntries = ldap_count_entries(pLd, pSearchResult);
+    if (dwNumEntries == 0)
+    {
+        // Caller should make sure that the ObjectDN passed in does exist
+        dwError = ERROR_INVALID_PARAMETER;
+        BAIL_ON_VMAFD_ERROR(dwError);
+    }
+    else if (dwNumEntries != 1)
+    {
+        dwError = ERROR_INVALID_STATE;
+        BAIL_ON_VMAFD_ERROR(dwError);
+    }
+
+    dwError = DirCliCopyQueryResultAttributeString(
+        pLd,
+        pSearchResult,
+        pszAttribute,
+        TRUE,
+        &pszValue);
+    BAIL_ON_VMAFD_ERROR(dwError);
+
+    if (!pszValue)
+    {
+        *pbExists = FALSE;
+        *ppszValue = NULL;
+    }
+    else
+    {
+        *pbExists = TRUE;
+        *ppszValue = pszValue;
+    }
+
+cleanup:
+    if (pSearchResult)
+    {
+        ldap_msgfree(pSearchResult);
+    }
+    return dwError;
+
+error :
+    if(ppszValue)
+    {
+        *ppszValue = NULL;
+    }
+    if(pbExists)
+    {
+        *pbExists = FALSE;
+    }
+
+    VMAFD_SAFE_FREE_MEMORY(pszValue);
+    goto cleanup;
+}
+
+
 DWORD
 DirCliLdapUpdateAttribute(
     LDAP*   pLd,
@@ -3806,7 +4015,7 @@ error:
     goto cleanup;
 }
 
-static
+
 DWORD
 DirCliCopyQueryResultAttributeString(
     LDAP*        pLotus,
@@ -3826,7 +4035,7 @@ DirCliCopyQueryResultAttributeString(
                                 pszAttribute);
     if (ppValues && ppValues[0])
     {
-        dwError = VmAfdAllocateMemory(
+       dwError = VmAfdAllocateMemory(
                         sizeof(CHAR) * ppValues[0]->bv_len + 1,
                         (PVOID*)&pszOut);
         BAIL_ON_VMAFD_ERROR(dwError);
@@ -3862,7 +4071,6 @@ error:
     goto cleanup;
 }
 
-static
 DWORD
 DirCliGetDefaultDomainName(
     LDAP* pLotus,

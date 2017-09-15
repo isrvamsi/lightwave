@@ -92,3 +92,31 @@ typedef struct _DIR_CLI_USER_INFO
     DWORD dwInfoLevel;
 } DIR_CLI_USER_INFO, *PDIR_CLI_USER_INFO;
 
+typedef struct _DIR_GROUP_POLICY_OBJECT_
+{
+    DWORD       dwVersion;
+    PSTR        pszDomainDN;    // DN for the  GPO parent
+    PSTR        pszPolicyCN;    // CN of the policy
+    PSTR        pszPolicyName;  // Stored in Attribute displayName
+    PSTR        pszPolicyJson;  // Stored in Attribute gPCMachineExtensionNames
+    struct _DIR_GROUP_POLICY_OBJECT_ *pNext;
+} DIR_GROUP_POLICY_OBJECT, *PDIR_GROUP_POLICY_OBJECT;
+
+typedef struct _GPLINK_LIST_
+{
+    PSTR        pszObjectDN;    // Object(Domain or OU)
+    PSTR        pszgPlink  ;    // string of links
+    struct _GPLINK_LIST_ *pNext;
+} GPLINK_LIST, *PGPLINK_LIST;
+
+typedef struct _GP_CLI_ARGS_
+{
+    PSTR pszServer;
+    PSTR pszDomain;
+    PSTR pszLogin;
+    PSTR pszPassword;
+    PSTR pszTargetDN;
+    PSTR pszJsonFile;
+    PSTR pszPolicyName;
+    PSTR pszGPCommand;
+} GP_CLI_ARGS, *PGP_CLI_ARGS;
